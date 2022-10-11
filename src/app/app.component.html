@@ -1,1 +1,38 @@
-<h1 class="text-3xl font-bold underline">Hello world!</h1>
+<div class="flex justify-between items-center bg-[#2d6783] py-5 px-5">
+  <img
+    class="w-[20px] h-[20px] cursor-pointer"
+    src="assets/icons/info.png"
+    alt=""
+  />
+  <div class="text-[#ffffff] font-[300]">New Request</div>
+  <img
+    class="w-[16px] h-[16px] cursor-pointer"
+    src="assets/icons/more.png"
+    alt=""
+  />
+</div>
+<div class="flex flex-col items-center relative">
+  <div id="map" style="width: 100%; height: 500px"></div>
+  <button
+    *ngIf="map !== null"
+    class="absolute bottom-[2%] font-[300] bg-[#2d6783] hover:bg-blue-700 text-white py-2 px-4 rounded h-[50px] w-[90%]"
+  >
+    Select Service
+  </button>
+</div>
+<p-table [value]="services" responsiveLayout="scroll" *ngIf="flag">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Type</th>
+      <th>Provider</th>
+      <th>Action</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-service>
+    <tr>
+      <td>{{ service.type }}</td>
+      <td>{{ service.provider }}</td>
+      <td>Act</td>
+    </tr>
+  </ng-template>
+</p-table>
