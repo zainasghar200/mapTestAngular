@@ -159,7 +159,7 @@ export class AppComponent implements OnInit {
               state: Math.floor(Math.random() * 5) + 1,
               lat: loc.geometry.location.lat(),
               lng: loc.geometry.location.lng(),
-              rating: loc.rating ? Math.floor(loc.rating) : 5,
+              rating: loc.rating ? Math.floor(loc.rating) : 0,
               photo:
                 loc.photos && loc.photos.length > 0
                   ? loc.photos[0].getUrl()
