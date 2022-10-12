@@ -6,63 +6,88 @@ import { Component, ElementRef, OnInit } from '@angular/core';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  flag = false;
+  firstFlag = false;
+  secondFlag = false;
   markerLoc = {
     lat: null,
     lng: null,
   };
+  marker: any;
   map: any;
+  selectedService = {
+    id: 0,
+    type: '',
+    provider: '',
+    state: 0,
+  };
   services: any = [
     {
       id: 1,
       type: 'Plumber',
-      provider: 'xyz',
+      provider: 'Plumber',
+      state: 2,
     },
     {
       id: 2,
       type: 'Electrician',
-      provider: 'xyz',
+      provider: 'Electrician',
+      state: 3,
     },
     {
       id: 3,
       type: 'Mechanic',
-      provider: 'xyz',
+      provider: 'Mechanic',
+      state: 1,
     },
     {
       id: 4,
       type: 'Engineer',
-      provider: 'xyz',
+      provider: 'Engineer',
+      state: 5,
     },
     {
       id: 5,
       type: 'Sweeper',
-      provider: 'xyz',
+      provider: 'Sweeper',
+      state: 4,
     },
     {
       id: 6,
       type: 'Office Boy',
-      provider: 'xyz',
+      provider: 'Office Boy',
+      state: 3,
     },
     {
       id: 7,
       type: 'Painter',
-      provider: 'xyz',
+      provider: 'Painter',
+      state: 2,
     },
     {
       id: 8,
       type: 'Carpenter',
-      provider: 'xyz',
+      provider: 'Carpenter',
+      state: 5,
     },
     {
       id: 9,
       type: 'Chef',
-      provider: 'xyz',
+      provider: 'Chef',
+      state: 1,
     },
     {
       id: 10,
       type: 'Tailor',
-      provider: 'xyz',
+      provider: 'Tailor',
+      state: 5,
     },
+  ];
+  statuses = [
+    { index: 1, state: 'Pending' },
+    { index: 2, state: 'On Way' },
+    { index: 3, state: 'Delivered' },
+    { index: 4, state: 'Working' },
+    { index: 5, state: 'Completed' },
   ];
   constructor(private elementRef: ElementRef) {}
   ngOnInit(): void {
@@ -96,10 +121,16 @@ export class AppComponent implements OnInit {
     this.map.addListener('click', this.onMapClick.bind(this));
   }
   addMarker(latLng: any) {
-    const marker = new window['google'].maps.Marker({
+    if (this.marker) {
+      this.marker.setMap(null);
+      this.firstFlag = false;
+      // this.markerLoc.lat = null;
+      // this.markerLoc.lng = null;
+    }
+    this.marker = new window['google'].maps.Marker({
       position: latLng,
     });
-    marker.setMap(this.map);
+    this.marker.setMap(this.map);
     // this.combine();
   }
   onMapClick(e: any) {
@@ -109,7 +140,28 @@ export class AppComponent implements OnInit {
   }
   combine() {
     // console.log(this.elementRef.nativeElement.querySelector('#map'));
-    this.flag = true;
+  }
+  onServicesClick() {
+    console.log(this);
+    this.firstFlag = true;
+  }
+  onActionClick(service: any) {
+    console.log(service);
+    this.selectedService = service;
+    this.firstFlag = false;
+    this.secondFlag = true;
+  }
+  onBackClick() {
+    this.secondFlag = false;
+    this.firstFlag = true;
+  }
+  checkState(state: any) {
+    console.log(state);
+    if (state <= this.selectedService.state) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /* #region  Map function */
