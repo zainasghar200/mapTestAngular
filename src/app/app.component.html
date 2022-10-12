@@ -1,122 +1,134 @@
-<div class="flex justify-between items-center bg-[#2d6783] py-5 px-5">
-  <img
-    *ngIf="!secondFlag"
-    class="w-[20px] h-[20px] cursor-pointer"
-    src="assets/icons/info.png"
-    alt=""
-  />
-  <img
-    *ngIf="secondFlag"
-    class="w-[20px] h-[20px] cursor-pointer"
-    src="assets/icons/back.png"
-    alt=""
-    (click)="onBackClick()"
-  />
-  <div *ngIf="!secondFlag" class="text-[#ffffff] font-[300]">New Request</div>
-  <div *ngIf="secondFlag" class="text-[#ffffff] font-[300]">
-    Request Follow Up
-  </div>
-  <img
-    class="w-[16px] h-[16px] cursor-pointer"
-    src="assets/icons/more.png"
-    alt=""
-  />
-</div>
-<div class="flex flex-col items-center relative">
-  <div
-    id="map"
-    style="width: 100%"
-    [ngStyle]="{ height: firstFlag ? '40vh' : '93vh' }"
-  ></div>
-  <div class="absolute top-0 bg-white w-full" *ngIf="secondFlag">
-    <div class="flex justify-between px-6 py-10">
-      <div
-        *ngFor="let status of statuses; let last = last"
-        [ngClass]="{
-          'text-[#afafaf]': !checkState(status.index),
-          'text-[#58a97a] font-medium': checkState(status.index),
-          'flex flex-col items-center relative': true
-        }"
-      >
-        <div
-          [ngClass]="{
-            'border-[#afafaf]': !checkState(status.index),
-            'border-[#58a97a]': checkState(status.index),
-            'flex justify-center items-center border w-[26px] h-[26px] rounded-full mb-1 text-xs bg-white z-10': true
-          }"
-        >
-          {{ status.index }}
-        </div>
-        <div
-          [ngClass]="{
-            'line-inActive': !checkState(status.index) && !last,
-            'line-active': checkState(status.index) && !last,
-            'text-xs': true
-          }"
-        >
-          {{ status.state }}
-        </div>
-      </div>
+<div class="max-w-md m-auto">
+  <div class="flex justify-between items-center bg-[#2d6783] py-5 px-5">
+    <img
+      *ngIf="!secondFlag"
+      class="w-[20px] h-[20px] cursor-pointer"
+      src="assets/icons/info.png"
+      alt=""
+    />
+    <img
+      *ngIf="secondFlag"
+      class="w-[20px] h-[20px] cursor-pointer"
+      src="assets/icons/back.png"
+      alt=""
+      (click)="onBackClick()"
+    />
+    <div *ngIf="!secondFlag" class="text-[#ffffff] font-[300]">New Request</div>
+    <div *ngIf="secondFlag" class="text-[#ffffff] font-[300]">
+      Request Follow Up
     </div>
-    <hr />
-    <div class="flex items-center gap-5 px-6 py-6">
-      <img
-        class="w-[100px] h-[100px] rounded-full"
-        src="assets/icons/profile.png"
-        alt=""
-      />
-      <div class="flex flex-col w-full">
-        <div class="text-lg font-bold">{{ selectedService.provider }}</div>
-        <div class="flex mt-1 mb-3">
-          <img class="w-[17px] h-[17px]" src="assets/icons/star.png" alt="" />
-          <img class="w-[17px] h-[17px]" src="assets/icons/star.png" alt="" />
-          <img class="w-[17px] h-[17px]" src="assets/icons/star.png" alt="" />
-          <img class="w-[17px] h-[17px]" src="assets/icons/star.png" alt="" />
-          <img class="w-[17px] h-[17px]" src="assets/icons/star.png" alt="" />
-        </div>
-        <div class="flex gap-3">
-          <button
-            (click)="onBackClick()"
-            class="bg-red-700 h-[40px] w-1/2 rounded text-white"
+    <img
+      class="w-[16px] h-[16px] cursor-pointer"
+      src="assets/icons/more.png"
+      alt=""
+    />
+  </div>
+  <div class="flex flex-col items-center relative">
+    <input
+      *ngIf="!secondFlag && clickedLocation.length > 0"
+      class="absolute top-0 z-10 w-full disabled:opacity-100 text-center text-[#808080d4]"
+      [disabled]="true"
+      type="text"
+      pInputText
+      [(ngModel)]="clickedLocation"
+    />
+    <div
+      id="map"
+      style="width: 100%"
+      [ngStyle]="{ height: firstFlag ? '40vh' : '93vh' }"
+    ></div>
+    <div class="absolute top-0 bg-white w-full" *ngIf="secondFlag">
+      <div class="flex justify-between px-6 py-10">
+        <div
+          *ngFor="let status of statuses; let last = last"
+          [ngClass]="{
+            'text-[#afafaf]': !checkState(status.index),
+            'text-[#58a97a] font-medium': checkState(status.index),
+            'flex flex-col items-center relative': true
+          }"
+        >
+          <div
+            [ngClass]="{
+              'border-[#afafaf]': !checkState(status.index),
+              'border-[#58a97a]': checkState(status.index),
+              'flex justify-center items-center border w-[26px] h-[26px] rounded-full mb-1 text-xs bg-white z-10': true
+            }"
           >
-            Cancel</button
-          ><button class="bg-green-700 h-[40px] w-1/2 rounded text-white">
-            Call
-          </button>
+            {{ status.index }}
+          </div>
+          <div
+            [ngClass]="{
+              'line-inActive': !checkState(status.index) && !last,
+              'line-active': checkState(status.index) && !last,
+              'text-xs': true
+            }"
+          >
+            {{ status.state }}
+          </div>
+        </div>
+      </div>
+      <hr />
+      <div class="flex items-center gap-5 px-6 py-6">
+        <img
+          class="w-[100px] h-[100px] min-w-[100px] rounded-full"
+          [src]="selectedService.photo"
+          alt=""
+        />
+        <div class="flex flex-col w-full">
+          <div class="text-lg font-bold">{{ selectedService.provider }}</div>
+          <div class="flex mt-1 mb-3">
+            <img class="w-[17px] h-[17px]" src="assets/icons/star.png" alt="" />
+            <img class="w-[17px] h-[17px]" src="assets/icons/star.png" alt="" />
+            <img class="w-[17px] h-[17px]" src="assets/icons/star.png" alt="" />
+            <img class="w-[17px] h-[17px]" src="assets/icons/star.png" alt="" />
+            <img class="w-[17px] h-[17px]" src="assets/icons/star.png" alt="" />
+          </div>
+          <div class="flex gap-3">
+            <button
+              (click)="onBackClick()"
+              class="bg-red-700 h-[40px] w-1/2 rounded text-white"
+            >
+              Cancel</button
+            ><button class="bg-green-700 h-[40px] w-1/2 rounded text-white">
+              Call
+            </button>
+          </div>
         </div>
       </div>
     </div>
+    <button
+      *ngIf="!secondFlag"
+      [disabled]="this.markerLoc.lat === null"
+      (click)="onServicesClick()"
+      class="absolute bottom-[2%] disabled:opacity-90 opacity-100 font-[300] bg-[#2d6783] text-white py-2 px-4 rounded h-[50px] w-[90%]"
+    >
+      Select Service
+    </button>
   </div>
-  <button
-    *ngIf="!secondFlag"
-    [disabled]="this.markerLoc.lat === null"
-    (click)="onServicesClick()"
-    class="absolute bottom-[2%] disabled:opacity-90 opacity-100 font-[300] bg-[#2d6783] text-white py-2 px-4 rounded h-[50px] w-[90%]"
-  >
-    Select Service
-  </button>
-</div>
 
-<p-table [value]="services" responsiveLayout="scroll" *ngIf="firstFlag">
-  <ng-template pTemplate="header">
-    <tr>
-      <th>Type</th>
-      <th>Provider</th>
-      <th>Action</th>
-    </tr>
-  </ng-template>
-  <ng-template pTemplate="body" let-service>
-    <tr>
-      <td>{{ service.type }}</td>
-      <td>{{ service.provider }}</td>
-      <td>
-        <img
-          class="w-[25px] h-[25px] ml-3 cursor-pointer"
-          src="assets/icons/view.png"
-          alt=""
-          (click)="onActionClick(service)"
-        />
-      </td>
-    </tr>
-  </ng-template>
-</p-table>
+  <p-table [value]="services" responsiveLayout="scroll" *ngIf="firstFlag">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Sr</th>
+        <th>Provider</th>
+        <th>Type</th>
+        <th>Action</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-service let-rowIndex="rowIndex">
+      <tr>
+        <td>{{ rowIndex + 1 }}</td>
+        <td>{{ service.provider }}</td>
+        <td>{{ service.type }}</td>
+        <td>
+          <img
+            class="w-[25px] h-[25px] ml-3 cursor-pointer"
+            src="assets/icons/view.png"
+            alt=""
+            (click)="onActionClick(service)"
+          />
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

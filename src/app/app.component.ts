@@ -6,12 +6,14 @@ import { Component, ElementRef, OnInit } from '@angular/core';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
+  refreshFlag = false;
   firstFlag = false;
   secondFlag = false;
   markerLoc = {
     lat: null,
     lng: null,
   };
+  clickedLocation = '';
   marker: any;
   map: any;
   selectedService = {
@@ -19,69 +21,11 @@ export class AppComponent implements OnInit {
     type: '',
     provider: '',
     state: 0,
+    lat: null,
+    lng: null,
+    photo: '',
   };
-  services: any = [
-    {
-      id: 1,
-      type: 'Plumber',
-      provider: 'Plumber',
-      state: 2,
-    },
-    {
-      id: 2,
-      type: 'Electrician',
-      provider: 'Electrician',
-      state: 3,
-    },
-    {
-      id: 3,
-      type: 'Mechanic',
-      provider: 'Mechanic',
-      state: 1,
-    },
-    {
-      id: 4,
-      type: 'Engineer',
-      provider: 'Engineer',
-      state: 5,
-    },
-    {
-      id: 5,
-      type: 'Sweeper',
-      provider: 'Sweeper',
-      state: 4,
-    },
-    {
-      id: 6,
-      type: 'Office Boy',
-      provider: 'Office Boy',
-      state: 3,
-    },
-    {
-      id: 7,
-      type: 'Painter',
-      provider: 'Painter',
-      state: 2,
-    },
-    {
-      id: 8,
-      type: 'Carpenter',
-      provider: 'Carpenter',
-      state: 5,
-    },
-    {
-      id: 9,
-      type: 'Chef',
-      provider: 'Chef',
-      state: 1,
-    },
-    {
-      id: 10,
-      type: 'Tailor',
-      provider: 'Tailor',
-      state: 5,
-    },
-  ];
+  services: any = [];
   statuses = [
     { index: 1, state: 'Pending' },
     { index: 2, state: 'On Way' },
@@ -119,34 +63,6 @@ export class AppComponent implements OnInit {
       position
     );
     this.map.addListener('click', this.onMapClick.bind(this));
-
-    // var searchOrigin = new window['google'].maps.LatLng(40.6892494, -74.0445);
-    // var request = {
-    //   location: searchOrigin,
-    //   fields: ['name', 'geometry'],
-    //   radius: 100,
-    // };
-    // const service = new window['google'].maps.places.PlacesService(this.map);
-    // console.log('service');
-    // console.log(service);
-
-    // service.nearbySearch(request, function (results: any, status: any) {
-    //   console.log(status);
-    //   if (status === window['google'].maps.places.PlacesServiceStatus.OK) {
-    //     var distance = 10000;
-    //     for (var i = 0; i < results.length; i++) {
-    //       console.log(results[i]);
-
-    //       // if (thisDist < distance) {
-    //       //   closest = marker;
-    //       //   distance = thisDist;
-    //       // }
-    //     }
-
-    //     // map.setCenter(closest.getPosition());
-    //     // google.maps.event.trigger(closest, 'click');
-    //   }
-    // });
   }
   addMarker(latLng: any) {
     if (this.marker) {
@@ -157,14 +73,64 @@ export class AppComponent implements OnInit {
     }
     this.marker = new window['google'].maps.Marker({
       position: latLng,
+      icon: 'assets/icons/location.png',
     });
     this.marker.setMap(this.map);
     // this.combine();
   }
   onMapClick(e: any) {
+    this.refreshFlag = false;
     this.markerLoc.lat = e.latLng.lat();
     this.markerLoc.lng = e.latLng.lng();
+    this.searchPlaces();
     this.addMarker(e.latLng);
+  }
+  searchPlaces() {
+    this.clickedLocation = '';
+    var searchOrigin = new window['google'].maps.LatLng(
+      this.markerLoc.lat,
+      this.markerLoc.lng
+    );
+    var request = {
+      location: searchOrigin,
+      fields: ['name', 'geometry'],
+      radius: 2000,
+    };
+
+    const service = new window['google'].maps.places.PlacesService(this.map);
+
+    if (this.refreshFlag) {
+      service.nearbySearch(request, this.getPlaces.bind(this));
+      this.refreshFlag = false;
+    }
+    service.nearbySearch(request, this.getPlaces.bind(this));
+  }
+  getPlaces(results: any, status: any) {
+    if (status === window['google'].maps.places.PlacesServiceStatus.OK) {
+      if (results.length > 0) {
+        this.services = results
+          .filter((loc: any) => {
+            return loc.business_status === 'OPERATIONAL';
+          })
+          .slice(0, 10)
+          .map((loc: any, i: number) => {
+            return {
+              id: loc.place_id,
+              provider: loc.name,
+              type: loc.types.length > 0 ? loc.types[0] : '',
+              state: Math.floor(Math.random() * 5) + 1,
+              lat: loc.geometry.location.lat(),
+              lng: loc.geometry.location.lng(),
+              photo:
+                loc.photos && loc.photos.length > 0
+                  ? loc.photos[0].getUrl()
+                  : 'assets/icons/profile.png',
+            };
+          });
+        this.clickedLocation = this.services[0].provider;
+        console.log(this.clickedLocation);
+      }
+    }
   }
   combine() {
     // console.log(this.elementRef.nativeElement.querySelector('#map'));
@@ -174,10 +140,14 @@ export class AppComponent implements OnInit {
   }
   onActionClick(service: any) {
     this.selectedService = service;
+    this.addServiceIconOnMap();
     this.firstFlag = false;
     this.secondFlag = true;
   }
   onBackClick() {
+    this.addMarker({ lat: this.markerLoc.lat, lng: this.markerLoc.lng });
+    this.map.setCenter({ lat: this.markerLoc.lat, lng: this.markerLoc.lng });
+
     this.secondFlag = false;
     this.firstFlag = true;
   }
@@ -187,6 +157,29 @@ export class AppComponent implements OnInit {
     } else {
       return false;
     }
+  }
+  addServiceIconOnMap() {
+    // this.markerLoc.lat = this.selectedService.lat;
+    // this.markerLoc.lng = this.selectedService.lng;
+    const latLng = {
+      lat: this.selectedService.lat,
+      lng: this.selectedService.lng,
+    };
+    if (this.marker) {
+      this.marker.setMap(null);
+      this.firstFlag = false;
+      // this.markerLoc.lat = null;
+      // this.markerLoc.lng = null;
+    }
+    this.marker = new window['google'].maps.Marker({
+      position: latLng,
+      icon: 'assets/icons/location-user.png',
+    });
+    this.marker.setMap(this.map);
+    this.map.setCenter({
+      lat: this.selectedService.lat,
+      lng: this.selectedService.lng,
+    });
   }
 
   /* #region  Map function */
@@ -200,7 +193,7 @@ export class AppComponent implements OnInit {
       s.id = 'google-map-script';
       s.type = 'text/javascript';
       s.src =
-        'https://maps.googleapis.com/maps/api/js?key=AIzaSyBXBz-8QEGv1oad2TB6fGT7B74m1rptHUE&libraries=places,geometry&callback=initMap';
+        'https://maps.googleapis.com/maps/api/js?key=AIzaSyA-qJx4ePSEDPWd21vwlG4b2aKQ_OtQSNU&libraries=places,geometry&callback=initMap';
       window.document.body.appendChild(s);
     } else {
       // loadMap();
