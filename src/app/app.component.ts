@@ -27,6 +27,7 @@ export class AppComponent implements OnInit {
     state: 0,
     lat: null,
     lng: null,
+    rating: 0,
     photo: '',
   };
   placesService: any;
@@ -144,6 +145,7 @@ export class AppComponent implements OnInit {
   getPlaces(results: any, status: any) {
     if (status === window['google'].maps.places.PlacesServiceStatus.OK) {
       if (results.length > 0) {
+        console.log(results);
         this.services = results
           .filter((loc: any) => {
             return loc.business_status === 'OPERATIONAL';
@@ -157,6 +159,7 @@ export class AppComponent implements OnInit {
               state: Math.floor(Math.random() * 5) + 1,
               lat: loc.geometry.location.lat(),
               lng: loc.geometry.location.lng(),
+              rating: loc.rating ? Math.floor(loc.rating) : 5,
               photo:
                 loc.photos && loc.photos.length > 0
                   ? loc.photos[0].getUrl()
@@ -217,6 +220,9 @@ export class AppComponent implements OnInit {
       lat: this.selectedService.lat,
       lng: this.selectedService.lng,
     });
+  }
+  RepeatSkeleton(n: number): Array<number> {
+    return Array(n);
   }
 
   /* #region  Map function */
