@@ -25,7 +25,7 @@
   </div>
   <div class="flex flex-col items-center relative">
     <input
-      *ngIf="!secondFlag && clickedLocation.length > 0"
+      *ngIf="firstFlag && clickedLocation.length > 0"
       class="absolute top-0 z-10 w-full disabled:opacity-100 text-center text-[#808080d4]"
       [disabled]="true"
       type="text"

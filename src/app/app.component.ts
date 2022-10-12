@@ -9,6 +9,10 @@ export class AppComponent implements OnInit {
   refreshFlag = false;
   firstFlag = false;
   secondFlag = false;
+  currentLoc = {
+    lat: 0,
+    lng: 0,
+  };
   markerLoc = {
     lat: null,
     lng: null,
@@ -25,6 +29,7 @@ export class AppComponent implements OnInit {
     lng: null,
     photo: '',
   };
+  placesService: any;
   services: any = [];
   statuses = [
     { index: 1, state: 'Pending' },
@@ -47,15 +52,44 @@ export class AppComponent implements OnInit {
     this.setMapCenter();
   };
   setMapCenter() {
-    const position = {
-      center: {
-        lat: 31.470562173934646,
-        lng: 74.24975424509226,
-      },
-      zoom: 11,
-      disableDefaultUI: true,
-    };
-    this.initMap(position);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position: GeolocationPosition) => {
+          this.currentLoc.lat = position.coords.latitude;
+          this.currentLoc.lng = position.coords.longitude;
+          const pos = {
+            center: {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            },
+            zoom: 11,
+            disableDefaultUI: true,
+          };
+          this.initMap(pos);
+        },
+        () => {
+          const position = {
+            center: {
+              lat: 31.470562173934646,
+              lng: 74.24975424509226,
+            },
+            zoom: 11,
+            disableDefaultUI: true,
+          };
+          this.initMap(position);
+        }
+      );
+    } else {
+      const position = {
+        center: {
+          lat: 31.470562173934646,
+          lng: 74.24975424509226,
+        },
+        zoom: 11,
+        disableDefaultUI: true,
+      };
+      this.initMap(position);
+    }
   }
   initMap(position: any) {
     this.map = new window['google'].maps.Map(
@@ -79,14 +113,16 @@ export class AppComponent implements OnInit {
     // this.combine();
   }
   onMapClick(e: any) {
-    this.refreshFlag = false;
-    this.markerLoc.lat = e.latLng.lat();
-    this.markerLoc.lng = e.latLng.lng();
-    this.searchPlaces();
-    this.addMarker(e.latLng);
+    if (!this.secondFlag) {
+      this.refreshFlag = false;
+      this.markerLoc.lat = e.latLng.lat();
+      this.markerLoc.lng = e.latLng.lng();
+      this.searchPlaces();
+      this.addMarker(e.latLng);
+    }
   }
   searchPlaces() {
-    this.clickedLocation = '';
+    // this.clickedLocation = '';
     var searchOrigin = new window['google'].maps.LatLng(
       this.markerLoc.lat,
       this.markerLoc.lng
@@ -97,13 +133,13 @@ export class AppComponent implements OnInit {
       radius: 2000,
     };
 
-    const service = new window['google'].maps.places.PlacesService(this.map);
-
-    if (this.refreshFlag) {
-      service.nearbySearch(request, this.getPlaces.bind(this));
-      this.refreshFlag = false;
+    if (!this.placesService) {
+      this.placesService = new window['google'].maps.places.PlacesService(
+        this.map
+      );
     }
-    service.nearbySearch(request, this.getPlaces.bind(this));
+
+    this.placesService.nearbySearch(request, this.getPlaces.bind(this));
   }
   getPlaces(results: any, status: any) {
     if (status === window['google'].maps.places.PlacesServiceStatus.OK) {
@@ -129,6 +165,7 @@ export class AppComponent implements OnInit {
           });
         this.clickedLocation = this.services[0].provider;
         console.log(this.clickedLocation);
+        console.log(this.services);
       }
     }
   }
