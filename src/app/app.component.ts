@@ -7,10 +7,15 @@ import { Component, ElementRef, OnInit } from '@angular/core';
 })
 export class AppComponent implements OnInit {
   flag = false;
-  markerLoc = {
+  currentLoc: any = {
     lat: null,
     lng: null,
   };
+  markerLoc: any = {
+    lat: null,
+    lng: null,
+  };
+  marker: any;
   map: any;
   services: any = [
     {
@@ -78,37 +83,86 @@ export class AppComponent implements OnInit {
     this.setMapCenter();
   };
   setMapCenter() {
-    const position = {
-      center: {
-        lat: 31.470562173934646,
-        lng: 74.24975424509226,
-      },
-      zoom: 11,
-      disableDefaultUI: true,
-    };
-    this.initMap(position);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position: GeolocationPosition) => {
+          this.currentLoc.lat = position.coords.latitude;
+          this.currentLoc.lng = position.coords.longitude;
+          const pos = {
+            center: {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            },
+            zoom: 18,
+            disableDefaultUI: true,
+          };
+          this.initMap(pos);
+        },
+        () => {
+          const position = {
+            center: {
+              lat: 31.470562173934646,
+              lng: 74.24975424509226,
+            },
+            zoom: 18,
+            disableDefaultUI: true,
+          };
+          this.initMap(position);
+        }
+      );
+    } else {
+      const position = {
+        center: {
+          lat: 31.470562173934646,
+          lng: 74.24975424509226,
+        },
+        zoom: 18,
+        disableDefaultUI: true,
+      };
+      this.initMap(position);
+    }
   }
   initMap(position: any) {
     this.map = new window['google'].maps.Map(
       document.getElementById('map') as HTMLElement,
       position
     );
+    this.addCurrentMarker(this.currentLoc);
     this.map.addListener('click', this.onMapClick.bind(this));
   }
-  addMarker(latLng: any) {
-    const marker = new window['google'].maps.Marker({
-      position: latLng,
+  addMarker(e: any) {
+    this.markerLoc.lat = e.latLng.lat();
+    this.markerLoc.lng = e.latLng.lng();
+    if (this.marker) {
+      this.marker.setMap(null);
+    }
+    this.marker = new window['google'].maps.Marker({
+      position: e.latLng,
     });
-    marker.setMap(this.map);
+    this.marker.setMap(this.map);
+    // this.combine();
+  }
+  addCurrentMarker(pos: any) {
+    console.log(pos);
+    this.markerLoc.lat = pos.lat;
+    this.markerLoc.lng = pos.lng;
+    if (this.marker) {
+      this.marker.setMap(null);
+    }
+    this.marker = new window['google'].maps.Marker({
+      position: pos,
+    });
+    this.marker.setMap(this.map);
     // this.combine();
   }
   onMapClick(e: any) {
-    this.markerLoc.lat = e.latLng.lat();
-    this.markerLoc.lng = e.latLng.lng();
-    this.addMarker(e.latLng);
+    this.addMarker(e);
   }
   combine() {
     // console.log(this.elementRef.nativeElement.querySelector('#map'));
+  }
+  onServicesClick() {
+    console.log(this);
     this.flag = true;
   }
 
