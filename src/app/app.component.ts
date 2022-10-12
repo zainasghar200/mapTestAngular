@@ -119,6 +119,34 @@ export class AppComponent implements OnInit {
       position
     );
     this.map.addListener('click', this.onMapClick.bind(this));
+
+    // var searchOrigin = new window['google'].maps.LatLng(40.6892494, -74.0445);
+    // var request = {
+    //   location: searchOrigin,
+    //   fields: ['name', 'geometry'],
+    //   radius: 100,
+    // };
+    // const service = new window['google'].maps.places.PlacesService(this.map);
+    // console.log('service');
+    // console.log(service);
+
+    // service.nearbySearch(request, function (results: any, status: any) {
+    //   console.log(status);
+    //   if (status === window['google'].maps.places.PlacesServiceStatus.OK) {
+    //     var distance = 10000;
+    //     for (var i = 0; i < results.length; i++) {
+    //       console.log(results[i]);
+
+    //       // if (thisDist < distance) {
+    //       //   closest = marker;
+    //       //   distance = thisDist;
+    //       // }
+    //     }
+
+    //     // map.setCenter(closest.getPosition());
+    //     // google.maps.event.trigger(closest, 'click');
+    //   }
+    // });
   }
   addMarker(latLng: any) {
     if (this.marker) {
@@ -142,11 +170,9 @@ export class AppComponent implements OnInit {
     // console.log(this.elementRef.nativeElement.querySelector('#map'));
   }
   onServicesClick() {
-    console.log(this);
     this.firstFlag = true;
   }
   onActionClick(service: any) {
-    console.log(service);
     this.selectedService = service;
     this.firstFlag = false;
     this.secondFlag = true;
@@ -156,7 +182,6 @@ export class AppComponent implements OnInit {
     this.firstFlag = true;
   }
   checkState(state: any) {
-    console.log(state);
     if (state <= this.selectedService.state) {
       return true;
     } else {
@@ -175,7 +200,7 @@ export class AppComponent implements OnInit {
       s.id = 'google-map-script';
       s.type = 'text/javascript';
       s.src =
-        'https://maps.googleapis.com/maps/api/js?key=AIzaSyBXBz-8QEGv1oad2TB6fGT7B74m1rptHUE&callback=initMap';
+        'https://maps.googleapis.com/maps/api/js?key=AIzaSyBXBz-8QEGv1oad2TB6fGT7B74m1rptHUE&libraries=places,geometry&callback=initMap';
       window.document.body.appendChild(s);
     } else {
       // loadMap();
