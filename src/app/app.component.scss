@@ -16,3 +16,7 @@
   display: block;
   position: absolute;
 }
+:host ::ng-deep .p-datatable {
+  max-height: 50vh;
+  overflow-y: auto;
+}
